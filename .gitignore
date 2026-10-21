@@ -1,0 +1,14 @@
+
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.aws/
+chat_history.db
+chat_history
+*.db
+uploads/
+document_text/
+metadata/
+.pytest_cache/
+main_backup.txt

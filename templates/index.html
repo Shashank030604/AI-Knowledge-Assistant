@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f6fb">
+
+    <title>AI Knowledge Assistant By SHASHANK</title>
+
+    <link rel="stylesheet" href="/static/style.css?v=2">
+    <script src="/static/script.js?v=2" defer></script>
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="brand">
+                <div class="brand-icon">AI</div>
+                <div>
+                    <h1>Knowledge Assistant</h1>
+                    <p>Ask your documents</p>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                id="newChatButton"
+                class="primary-button new-chat-button">
+                <span>＋</span> New chat
+            </button>
+
+            <!-- DOCUMENT UPLOAD AND HISTORY -->
+            <section class="sidebar-section">
+                <div class="section-heading">
+                    <h2>Documents</h2>
+                    <button
+                        type="button"
+                        id="refreshHistoryButton"
+                        class="icon-button"
+                        title="Refresh documents"
+                        aria-label="Refresh documents">↻</button>
+                </div>
+
+                <form id="uploadForm" class="upload-form">
+                    <label for="documentFile" class="upload-dropzone">
+                        <span class="upload-icon">↑</span>
+                        <strong>Upload a document</strong>
+                        <span>PDF or TXT · Maximum 10 MB</span>
+                        <span id="fileLabelText" class="file-label">
+                            Choose a file
+                        </span>
+                    </label>
+
+                    <input
+                        type="file"
+                        id="documentFile"
+                        name="file"
+                        accept=".pdf,.txt"
+                        required>
+
+                    <button
+                        type="submit"
+                        id="uploadButton"
+                        class="secondary-button">
+                        Upload document
+                    </button>
+
+                    <p
+                        id="uploadStatus"
+                        class="status-message"
+                        role="status"
+                        aria-live="polite"></p>
+                </form>
+
+                <div id="documentHistory" class="document-list"></div>
+                <p id="documentStatus" class="muted-message"></p>
+            </section>
+
+            <!-- SAVED CONVERSATIONS -->
+            <section class="sidebar-section saved-section">
+                <div class="section-heading">
+                    <h2>Saved chats</h2>
+                    <button
+                        type="button"
+                        id="refreshChatsButton"
+                        class="icon-button"
+                        title="Refresh chats"
+                        aria-label="Refresh chats">↻</button>
+                </div>
+
+                <div id="savedChats" class="saved-chat-list"></div>
+                <p id="savedChatsStatus" class="muted-message"></p>
+            </section>
+
+            <div class="sidebar-footer">
+                <span class="status-dot"></span>
+                <span>Powered by Amazon Bedrock</span>
+            </div>
+
+        </aside>
+
+        <!-- RIGHT MAIN PANEL -->
+        <main class="main-panel">
+
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">YOUR PERSONAL DOCUMENT ASSISTANT</p>
+                    <h2>AI Knowledge Assistant</h2>
+                </div>
+
+                <div class="model-badge">
+                    <span class="status-dot"></span>
+                    Nova Lite
+                </div>
+            </header>
+
+            <section class="workspace">
+
+                <div class="workspace-heading">
+                    <div>
+                        <h3 id="chatTitle">New conversation</h3>
+                        <p id="currentDocument">
+                            Upload or select a document to get started.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="previewDocumentButton"
+                        class="secondary-button"
+                        disabled>
+                        Preview document
+                    </button>
+                </div>
+
+                <!-- DOCUMENT PREVIEW -->
+                <div id="documentPreview" class="document-preview hidden">
+                    <div class="preview-header">
+                        <h4>Document preview</h4>
+                        <button
+                            type="button"
+                            id="closePreviewButton"
+                            class="icon-button"
+                            title="Close preview"
+                            aria-label="Close preview">×</button>
+                    </div>
+
+                    <p id="previewStatus" class="muted-message"></p>
+                    <pre id="previewText" class="preview-text"></pre>
+                </div>
+
+                <!-- CHAT MESSAGES -->
+                <div
+                    id="chatMessages"
+                    class="chat-messages"
+                    aria-live="polite">
+
+                    <div class="welcome-card" id="welcomeCard">
+                        <div class="welcome-icon">✦</div>
+
+                        <h3>Your documents, made easier to understand.</h3>
+
+                        <p>
+                            Upload a PDF or text file, select it, and ask
+                            questions. Answers are generated using relevant
+                            passages from your document.
+                        </p>
+
+                        <div class="suggestion-grid">
+
+                            <button
+                                type="button"
+                                class="suggestion-button"
+                                data-question="Summarize this document">
+                                <strong>Summarize</strong>
+                                <span>Get the main points</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="suggestion-button"
+                                data-question="What are the key points in this document?">
+                                <strong>Key points</strong>
+                                <span>Find important details</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="suggestion-button"
+                                data-question="Explain this document in simple language">
+                                <strong>Explain simply</strong>
+                                <span>Make complex ideas clear</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="suggestion-button"
+                                data-question="What conclusions can be drawn from this document?">
+                                <strong>Conclusions</strong>
+                                <span>Understand the takeaways</span>
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- QUESTION INPUT -->
+                <div class="composer-area">
+                    <form id="questionForm" class="question-form">
+
+                        <textarea
+                            id="questionInput"
+                            name="question"
+                            rows="1"
+                            maxlength="5000"
+                            placeholder="Ask a question about your document..."
+                            aria-label="Your question"
+                            required></textarea>
+
+                        <div class="composer-bottom">
+                            <span id="inputHint">
+                                Select a document before asking a question.
+                            </span>
+
+                            <div class="composer-actions">
+                                <span id="characterCount">0 / 5000</span>
+
+                                <button
+                                    type="submit"
+                                    id="askButton"
+                                    class="primary-button"
+                                    disabled>
+                                    Ask AI <span>↑</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <p class="disclaimer">
+                        AI-generated answers can contain mistakes.
+                        Verify important information against the source document.
+                    </p>
+                </div>
+
+            </section>
+        </main>
+
+    </div>
+</body>
+</html>
+
+/* FIX: Sidebar footer must not overlap saved chats */
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.sidebar-section {
+    flex-shrink: 0;
+}
+
+.saved-section {
+    flex: 1 1 auto;
+    min-height: 120px;
+    overflow-y: auto;
+    padding-bottom: 16px;
+}
+
+.sidebar-footer {
+    position: static !important;
+    flex: 0 0 auto;
+    width: 100%;
+    margin-top: auto;
+    padding: 16px 20px;
+    background: #ffffff;
+    border-top: 1px solid #e4e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+}
+
+/* Keep saved chat items clear of the footer */
+.saved-chat-list {
+    padding-bottom: 12px;
+}
+
+.saved-chat-list button,
+.saved-chat-list .saved-chat-item {
+    max-width: 100%;
+}
+
+/* Avoid sidebar content extending behind the footer */
+.sidebar {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+@media (max-width: 560px) {
+    .sidebar-footer {
+        padding: 12px;
+        font-size: 12px;
+    }
+}
